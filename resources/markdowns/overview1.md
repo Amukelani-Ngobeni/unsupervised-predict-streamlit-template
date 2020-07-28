@@ -1,0 +1,7 @@
+Data is a critical component in building accurate and robust recommendation systems that will be able to recommend movies that a user would most likely love to watch. In the development of this application, we have used historical data about movies and interactive information such as ratings left by users. We have noted that recommender systems fall short with recommendations for new users. It is for this reason that we have developed an algorithm that uses a content based and a collaborative filtering method to make reliable movie recommendations.
+
+
+The content based filtering relies heavily on the properties of the movies in the datasets used to train the prediction model. The application developed relies primarily on the genres of the movies to find similarities between movies. The collaborative filtering works best for users that have viewed and rated movies previously as it relies on the interaction the user would have had with the movies in the data set.
+
+
+The application developed thus returns to the user a list of the top 10 recommended movies, provided they have watched at least three movies. The user can select the method or type of recommender (be it content based or collaborative).
