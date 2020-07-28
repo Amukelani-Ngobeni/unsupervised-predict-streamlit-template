@@ -45,7 +45,7 @@ def main():
 
     # DO NOT REMOVE the 'Recommender System' option below, however,
     # you are welcome to add more options to enrich your app.
-    page_options = ["Recommender System","Solution Overview", "EDA"]
+    page_options = ["Recommender System","Solution Overview","App Overview","EDA"]
 
     # -------------------------------------------------------------------
     # ----------- !! THIS CODE MUST NOT BE ALTERED !! -------------------
@@ -102,7 +102,24 @@ def main():
     # ------------- SAFE FOR ALTERING/EXTENSION -------------------
     if page_selection == "Solution Overview":
         st.title("Solution Overview")
-        st.write("Describe your winning approach on this page")
+        st.image('resources/imgs/systems.png',use_column_width=True)
+        file = open('resources/markdowns/solution.md','r')
+        st.markdown(file.read())
+        st.image('resources/imgs/knnbar.png',use_column_width=True)
+        st.image('resources/imgs/knnline.png',use_column_width=True)
+        file2 = open('resources/markdowns/solution2.md','r')
+        st.markdown(file2.read())
+        st.image('resources/imgs/svd.png',use_column_width=True)
+        file3 = open('resources/markdowns/solution3.md','r')
+        st.markdown(file3.read())
+        # st.write("Describe your winning approach on this page"
+
+    if page_selection == "App Overview":
+        st.title("Solution Overview")
+        st.image('resources/imgs/dcbanner.png',use_column_width=True)
+        st.markdown(open('resources/markdowns/overview1.md','r').read())
+        st.image('resources/imgs/models.png',use_column_width=True)
+        st.markdown(open('resources/markdowns/overview2.md','r').read())
 
     
     # ------------- SAFE FOR ALTERING/EXTENSION -------------------
