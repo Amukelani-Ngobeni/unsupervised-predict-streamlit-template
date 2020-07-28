@@ -140,7 +140,7 @@ def main():
         # st.write("Describe your winning approach on this page"
 
     if page_selection == "App Overview":
-        st.title("Solution Overview")
+        st.title("App Overview")
         st.image('resources/imgs/dcbanner.png',use_column_width=True)
         st.markdown(open('resources/markdowns/overview1.md','r').read())
         st.image('resources/imgs/models.png',use_column_width=True)
