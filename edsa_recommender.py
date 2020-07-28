@@ -40,12 +40,37 @@ from recommenders.content_based import content_model
 # Data Loading
 title_list = load_movie_titles('resources/data/movies.csv')
 
+# Get Data
+movies = pd.read_csv('resources/data/movies.csv')
+imdb_data = pd.read_csv('resources/data/imdb_data.csv')
+ratings = pd.read_csv('resources/data/ratings.csv').drop(columns = 'timestamp')
+
+# Get Years from titles
+movies['year'] = movies['title'].str.extract('(\(\d\d\d\d\))',expand=False)
+movies['year'] = movies['year'].str.extract('(\d\d\d\d)',expand=False)
+movies['year'] = movies['year'].apply(lambda x: x if x == x else ' ')
+
+# Create Super DataFrame
+df = movies.join(imdb_data.set_index('movieId'),on='movieId')
+df['title_cast'] = df['title_cast'].apply(lambda x: x.replace('|',' ').lower() if x == x else ' ')
+df['plot_keywords'] = df['plot_keywords'].apply(lambda x: x.replace('|',' ').lower() if x == x else ' ')
+df['genres'] = df['genres'].apply(lambda x: x.replace('|',' ').lower())
+df['director'] = df['director'].apply(lambda x: x.lower() if x == x else ' ')
+
+# Function for finding searches
+def get_movies(value,column,length):
+    data = df[df[column].str.contains(value.lower())][['movieId','title']]
+    data = pd.merge(ratings,data,on ='movieId')
+    data = data.groupby('title').agg({'rating':['count','mean']})['rating']
+    return data.sort_values(['count','mean'],ascending=False).head(length).rename(columns={'mean':'average_rating','count':'num_ratings'})
+
+
 # App declaration
 def main():
 
     # DO NOT REMOVE the 'Recommender System' option below, however,
     # you are welcome to add more options to enrich your app.
-    page_options = ["Recommender System","Solution Overview","App Overview","EDA"]
+    page_options = ["Recommender System","Solution Overview","App Overview","EDA","Find"]
 
     # -------------------------------------------------------------------
     # ----------- !! THIS CODE MUST NOT BE ALTERED !! -------------------
@@ -203,7 +228,83 @@ def main():
         st.write('Figure 8.4.2')
         st.image('resources/EDA_rec_files/final_161_0.png',use_column_width=True)
         st.write('Figure 8.4.3')
+    
+    if page_selection == "Find":
+        # Header contents
+        st.write('# Search Database')
+        st.write('Find your favourite movies')
+        st.write('You can search for Directors, Actors, Genres, Keywords and even Years. We will then give you the most rated movies according to your search paramaters')
+        if st.checkbox('Click here to view raw data'):
+            # data is hidden if box is unchecked
+            st.write(df.head(10)) # will write the df to the page
 
+        
+        st.image('resources/imgs/movies.png',use_column_width=True)
+        st.header("Search")
+
+        x = st.slider("Number of recommendations you want to get",0,10,5)
+        col = st.selectbox("Select how you want the recommendation to be made",['Directors','Actors','Genres','Year','Keywords'])
+        # value = st.text_input('Enter value to search','steven spielberg')
+
+        if col == 'Directors':
+            value = st.text_input('Search Director','Stephen King').lower()
+            if st.button("Recommend"):
+                try:
+                    with st.spinner(f"Finding {value}'s Movies ..."):
+                        d = get_movies(value,'director',x)
+
+                    st.title(f"Most rated movies directed by {value}")
+                    st.table(d)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work. We'll need to fix it!")
+        
+        if col == 'Actors':
+            value = st.text_input('Search for movies actor has starred in','Denzel Washington').lower()
+            if st.button("Recommend"):
+                try:
+                    with st.spinner(f"Finding {value}'s Movies ..."):
+                        d = get_movies(value,'title_cast',x)
+
+                    st.title(f"{value}'s most rated movies are : ")
+                    st.table(d)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work. We'll need to fix it!")
+        
+        if col == 'Genres':
+            value = st.text_input('Search a genre','Comedy').lower()
+            if st.button("Recommend"):
+                try:
+                    with st.spinner(f"Finding {value} movies ..."):
+                        d = get_movies(value,'genres',x)
+
+                    st.title(f"Most rated {value} movies")
+                    st.table(d)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work. We'll need to fix it!")
+        
+        if col == 'Year':
+            value = st.number_input('Search for movies in a particular year',1900,2020,1994,1)
+            if st.button("Recommend"):
+                try:
+                    with st.spinner(f"Finding most rated Movies from {value}..."):
+                        d = get_movies(str(value),'year',x)
+
+                    st.title(f"{value}'s best movies are ")
+                    st.table(d)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work. We'll need to fix it!")
+        
+        if col == 'Keywords':
+            value = st.text_input('Search for movies containing a keyword','Man').lower()
+            if st.button("Recommend"):
+                try:
+                    with st.spinner(f"Finding Movies about {value}..."):
+                        d = get_movies(value,'plot_keywords',x)
+
+                    st.title(f"Movies about {value}")
+                    st.table(d)
+                except:
+                    st.error("Oops! Looks like this algorithm does't work. We'll need to fix it!")
 
     # You may want to add more sections here for aspects such as an EDA,
     # or to provide your business pitch.
